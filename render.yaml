@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: ai-model-selector
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main_flask.py
+    envVars:
+      - key: MONGO_URI
+        value: your_mongo_uri
+      - key: MONGO_DB_NAME
+        value: AI_model_selector
+      - key: MONGO_COLLECTION_NAME
+        value: user_queries
+      - key: RECOMMENDER_DB_NAME
+        value: AI_agent
+      - key: RECOMMENDER_COLLECTION_NAME
+        value: Models
+      - key: AZURE_OPENAI_KEY
+        value: your_azure_key
+      - key: AZURE_OPENAI_ENDPOINT
+        value: your_azure_endpoint
+      - key: AZURE_OPENAI_DEPLOYMENT_NAME
+        value: gpt-4o
+      - key: AZURE_OPENAI_ASSISTANT_ID
+        value: your_assistant_id

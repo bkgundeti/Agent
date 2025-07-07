@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Model Selector</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>AI Model Selector</h1>
+
+    <form id="inputForm" method="POST">
+      <label for="username">Your Name:</label>
+      <input type="text" id="username" name="username" required placeholder="Enter your name" />
+
+      <label for="requirement">Describe your AI use-case:</label>
+      <textarea id="requirement" name="requirement" rows="6" required placeholder="Describe what you need..."></textarea>
+
+      <button type="submit">Get Recommendation</button>
+    </form>
+
+    <div id="resultContainer" style="display: {% if output %}block{% else %}none{% endif %};">
+      <h2>Model Recommendation:</h2>
+      <pre id="resultBox"><span id="output">{{ output }}</span></pre>
+    </div>
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
