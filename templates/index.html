@@ -4,19 +4,24 @@
   <meta charset="UTF-8" />
   <title>AI Model Selector</title>
   <link rel="stylesheet" href="/static/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 <body>
   <div class="container">
     <h1>AI Model Selector</h1>
 
     <form id="inputForm" method="POST">
-      <label for="username">Your Name:</label>
-      <input type="text" id="username" name="username" required placeholder="Enter your name" />
+      <div class="form-group">
+        <label for="username">Your Name:</label>
+        <input type="text" id="username" name="username" required placeholder="Enter your name" />
+      </div>
 
-      <label for="requirement">Describe your AI use-case:</label>
-      <textarea id="requirement" name="requirement" rows="6" required placeholder="Describe what you need..."></textarea>
+      <div class="form-group">
+        <label for="requirement">Describe your AI Use-Case:</label>
+        <textarea id="requirement" name="requirement" rows="5" required placeholder="Ask something"></textarea>
+      </div>
 
-      <button type="submit">Get Recommendation</button>
+      <button type="submit">Get AI Recommendation</button>
     </form>
 
     <div id="resultContainer" style="display: {% if output %}block{% else %}none{% endif %};">

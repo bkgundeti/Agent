@@ -137,9 +137,13 @@ class ChatAgent:
                 {
                     "role": "system",
                     "content": (
-                        "You are an expert AI analyst. Analyze the user's input and determine whether they are requesting an "
-                        "AI model recommendation. If YES, extract use-case, performance needs, accuracy, cost sensitivity, etc.\n"
-                        "If NO, reply clearly: 'This input does not seem related to AI model recommendation.'"
+                        "You are an AI assistant that helps users ONLY with AI model recommendations.\n"
+                        "If the user input is about using AI for tasks (like summarization, chatbot, detection, etc.), say:\n"
+                        "'Thank you, I will now recommend an AI model.' and end with ##PROCEED##.\n\n"
+                        "If the input is NOT about AI model recommendation (e.g. greetings, life advice, how to study), then:\n"
+                        "- Politely respond with a DIFFERENT natural-sounding sentence depending on the input\n"
+                        "- Example replies: 'That doesn't sound like a task for an AI model.' or 'Please describe the AI use-case you want help with.'\n"
+                        "- Then end with this exact tag: ##HOLD##"
                     )
                 },
                 {
@@ -154,11 +158,13 @@ class ChatAgent:
             result = response.choices[0].message.content.strip()
             logger.info("Analysis result:\n" + result)
 
-            if "not seem related to ai model recommendation" in result.lower():
-                print("Input not related to AI model recommendation.")
+            if "##PROCEED##" in result:
+                cleaned = result.replace("##PROCEED##", "").strip()
+                return cleaned
+            else:
+                cleaned = result.replace("##HOLD##", "").strip()
+                print(cleaned)
                 return None
-
-            return result
 
         except Exception as e:
             logger.error(f"GPT error: {repr(e)}")
@@ -168,15 +174,21 @@ class ChatAgent:
     def process_web_input(self, user_input):
         try:
             if not user_input or not user_input.strip():
-                return None
+                return {
+                    "proceed": False,
+                    "message": "Input is empty. Please provide a requirement."
+                }
 
             messages = [
                 {
                     "role": "system",
                     "content": (
-                        "You are an expert AI analyst. Analyze the user's input and determine whether they are requesting an "
-                        "AI model recommendation. If YES, extract use-case, performance needs, accuracy, cost sensitivity, etc.\n"
-                        "If NO, reply clearly: 'This input does not seem related to AI model recommendation.'"
+                        "You are an intelligent assistant focused ONLY on recommending AI models.\n"
+                        "If the user input is about using AI for tasks like summarization, text generation, image recognition, etc., "
+                        "respond with: 'Great, I will now suggest the most suitable AI models for your case.' and end with ##PROCEED##.\n\n"
+                        "If it's NOT a valid model use-case (e.g. hello, exam question, how are you), reply naturally and POLITELY "
+                        "with varied wording depending on the input.\n"
+                        "Do NOT repeat the same sentence. Be helpful but end by saying: 'Please ask something model-related so I can assist.' and then add ##HOLD##."
                     )
                 },
                 {
@@ -184,18 +196,29 @@ class ChatAgent:
                     "content": user_input.strip()
                 }
             ]
+
             response = self.client.chat.completions.create(
                 model="gpt-4o",
                 messages=messages
             )
+
             result = response.choices[0].message.content.strip()
             logger.info("Web input analysis result:\n" + result)
 
-            if "not seem related to ai model recommendation" in result.lower():
-                return None
-
-            return result
+            if "##PROCEED##" in result:
+                return {
+                    "proceed": True,
+                    "message": result.replace("##PROCEED##", "").strip()
+                }
+            else:
+                return {
+                    "proceed": False,
+                    "message": result.replace("##HOLD##", "").strip()
+                }
 
         except Exception as e:
             logger.error(f"Web GPT error: {repr(e)}")
-            return None
+            return {
+                "proceed": False,
+                "message": "Something went wrong while analyzing your input."
+            }

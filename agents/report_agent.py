@@ -1,5 +1,5 @@
 import json
-from openai import AzureOpenAI
+from openai import AzureOpenAI  # or from openai import OpenAI if not using Azure
 from agents.logger import get_logger
 
 logger = get_logger("report_agent", "logs/report_agent.log")
@@ -15,7 +15,8 @@ class ReportAgent:
         prompt = f"""
 You are an expert AI model selector.
 
-Input:
+Step 1: Below is the information provided by user and system:
+
 1. Analyzed user requirement:
 \"\"\"{analyzed_input}\"\"\"
 
@@ -25,28 +26,25 @@ Input:
 3. Pricing details of shortlisted models:
 \"\"\"{pricing_table}\"\"\"
 
-Task:
-- Analyze all information and intelligently select the best model based on accuracy, speed, and relevance to user need.
-- Keep cost in mind, but prioritize user needs.
+Step 2: Your task is to select the best model using logic.
 
-Important:
-- Output MUST follow this **exact plain format**:
+Output Format (strictly follow this format):
 
 Final Best Model Recommended:
 1. Model Name      : <model_name>
 2. Price           : <price with unit>
-3. Speed           : <speed>
-4. Accuracy        : <accuracy>
-5. Cloud           : <provider>
-6. Region          : <region>
-7. Reason for Selection : <short, neat, clear reason>
+3. Speed           : <speed - always write something, even if approximate or inferred>
+4. Accuracy        : <convert to percentage if decimal (e.g., 0.987 → 98.7 %)>
+5. Cloud           : <cloud provider>
+6. Region          : <region or deployment area>
+7. Reason for Selection : <Short one-liner reason showing why this model fits best>
 
-Guidelines:
-- Don't use asterisks, markdown, or bullet points.
-- Ensure output looks clean, beautiful, and readable for end-users.
-- Use fixed spacing after each colon for visual alignment.
-- If some information is missing, write "Not specified" and continue.
-- Keep the reason one short sentence only.
+Rules:
+- NEVER write "Not specified" for Speed or Accuracy.
+- If Speed or Accuracy is missing, use best assumption or guess based on other fields.
+- Format should be beautiful and consistent, no markdown, no bullets, no emojis.
+- Maintain equal spacing after colons for clean readability.
+- The reason must be short and clearly reflect accuracy/speed/user goal.
 """
 
         try:
@@ -55,15 +53,19 @@ Guidelines:
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a smart assistant helping select the best AI model with a beautiful plain format output."
+                        "content": (
+                            "You are a smart assistant helping select the best AI model "
+                            "with a professional, plain-text report. Ensure speed is filled, "
+                            "accuracy is shown as %, and output is beautifully aligned."
+                        )
                     },
                     {
                         "role": "user",
                         "content": prompt
                     }
                 ],
-                temperature=0.5,
-                max_tokens=700
+                temperature=0.4,
+                max_tokens=800
             )
 
             result = completion.choices[0].message.content.strip()

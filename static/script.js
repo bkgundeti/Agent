@@ -8,7 +8,7 @@ document.getElementById("inputForm").addEventListener("submit", async function (
   const resultBox = document.getElementById("resultBox");
   const resultContainer = document.getElementById("resultContainer");
 
-  resultBox.textContent = "Processing... Please wait...";
+  resultBox.textContent = "⏳ Processing your input... Please wait...";
   resultContainer.style.display = "block";
 
   try {
@@ -21,12 +21,15 @@ document.getElementById("inputForm").addEventListener("submit", async function (
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
 
-    const newOutput = doc.querySelector("#resultBox");
+    const newOutput = doc.querySelector("#output");
     if (newOutput) {
       resultBox.textContent = newOutput.textContent;
     } else {
-      resultBox.textContent = "✅ Submitted successfully. Please check below.";
+      resultBox.textContent = "✅ Submitted successfully. Please check the recommendation above.";
     }
+
+    // Auto-scroll to result
+    resultContainer.scrollIntoView({ behavior: "smooth" });
 
   } catch (err) {
     resultBox.textContent = "❌ Error connecting to server.";
